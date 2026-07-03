@@ -10,53 +10,66 @@
             display:flex;
             justify-content:center;
             align-items:center;
-            height:100vh;
+            min-height:100vh;
         }
 
         .card{
             background:white;
             padding:20px;
             border-radius:10px;
-            width:550px;
+            width:600px;
         }
 
-        .grid{
+        .form-grid{
             display:grid;
             grid-template-columns: 1fr 1fr;
-            gap:10px;
+            gap:12px;
+        }
+
+        .field{
+            display:flex;
+            flex-direction:column;
+        }
+
+        label{
+            font-size:13px;
+            margin-bottom:5px;
+            color:#333;
         }
 
         input{
-            padding:8px;
-            width:90%;
-        }
-
-        .box{
-            display:flex;
-            align-items:center;
-            gap:5px;
-        }
-
-        button{
-            padding:5px 10px;
-            cursor:pointer;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:6px;
         }
 
         .predict{
-            margin-top:10px;
+            margin-top:15px;
             width:100%;
             padding:10px;
             background:green;
             color:white;
             border:none;
+            border-radius:6px;
         }
 
-        /* GEO LOCATION STYLE */
         #geo{
             text-align:center;
-            font-size:22px;
             font-weight:bold;
             margin:10px 0;
+        }
+
+        #weather{
+            text-align:center;
+            font-size:14px;
+            margin-bottom:10px;
+        }
+
+        #result{
+            text-align:center;
+            font-size:18px;
+            margin-top:10px;
+            font-weight:bold;
         }
     </style>
 </head>
@@ -67,73 +80,80 @@
 
 <h2 style="text-align:center;">🔥 Fire Weather Index</h2>
 
-<div class="grid">
+<div class="form-grid">
 
-<input id="day" placeholder="day" onkeydown="next(event,'month')">
-<input id="month" placeholder="month" onkeydown="next(event,'year')">
-<input id="year" placeholder="year" onkeydown="next(event,'Temperature')">
+    <div class="field">
+        <label>Day</label>
+        <input id="day" type="number">
+    </div>
 
-<div class="box">
-<button onclick="dec('Temperature')">-</button>
-<input id="Temperature" type="number" value="0" onkeydown="next(event,'RH')">
-<button onclick="inc('Temperature')">+</button>
+    <div class="field">
+        <label>Month</label>
+        <input id="month" type="number">
+    </div>
+
+    <div class="field">
+        <label>Year</label>
+        <input id="year" type="number">
+    </div>
+
+    <div class="field">
+        <label>Temperature</label>
+        <input id="Temperature" type="number">
+    </div>
+
+    <div class="field">
+        <label>Humidity (RH)</label>
+        <input id="RH" type="number">
+    </div>
+
+    <div class="field">
+        <label>Wind Speed</label>
+        <input id="Ws" type="number">
+    </div>
+
+    <div class="field">
+        <label>Rainfall</label>
+        <input id="Rain" type="number">
+    </div>
+
+    <div class="field">
+        <label>FFMC</label>
+        <input id="FFMC" type="number">
+    </div>
+
+    <div class="field">
+        <label>DMC</label>
+        <input id="DMC" type="number">
+    </div>
+
+    <div class="field">
+        <label>DC</label>
+        <input id="DC" type="number">
+    </div>
+
+    <div class="field">
+        <label>ISI</label>
+        <input id="ISI" type="number">
+    </div>
+
+    <div class="field">
+        <label>BUI</label>
+        <input id="BUI" type="number">
+    </div>
+
 </div>
 
-<div class="box">
-<button onclick="dec('RH')">-</button>
-<input id="RH" type="number" value="0" onkeydown="next(event,'Ws')">
-<button onclick="inc('RH')">+</button>
-</div>
-
-<div class="box">
-<button onclick="dec('Ws')">-</button>
-<input id="Ws" type="number" value="0" onkeydown="next(event,'Rain')">
-<button onclick="inc('Ws')">+</button>
-</div>
-
-<div class="box">
-<button onclick="dec('Rain')">-</button>
-<input id="Rain" type="number" value="0" onkeydown="next(event,'FFMC')">
-<button onclick="inc('Rain')">+</button>
-</div>
-
-<input id="FFMC" placeholder="FFMC" onkeydown="next(event,'DMC')">
-<input id="DMC" placeholder="DMC" onkeydown="next(event,'DC')">
-<input id="DC" placeholder="DC" onkeydown="next(event,'ISI')">
-<input id="ISI" placeholder="ISI" onkeydown="next(event,'BUI')">
-<input id="BUI">
-
-</div>
-
-<!-- GEO LOCATION -->
 <h3 id="geo">📍 Detecting location...</h3>
+<div id="weather"></div>
 
 <button class="predict" onclick="predict()">Predict</button>
 
-<h3 id="result" style="text-align:center;"></h3>
+<h3 id="result"></h3>
 
 </div>
 
 <script>
-
-function next(e,nextId){
-    if(e.key === "Enter"){
-        e.preventDefault();
-        if(nextId){
-            document.getElementById(nextId).focus();
-        }
-    }
-}
-
-function inc(id){
-    document.getElementById(id).value =
-        Number(document.getElementById(id).value) + 1;
-}
-
-function dec(id){
-    document.getElementById(id).value =
-        Number(document.getElementById(id).value) - 1;
-}
 
 async function predict(){
     let data = {
@@ -159,35 +179,46 @@ async function predict(){
 
     let out = await res.json();
     document.getElementById("result").innerText =
-        "🔥 FWI: " + out.fwi;
+        "🔥 FWI: " + out.fwi.toFixed(2);
 }
 
-/* GEOLOCATION (SAFE VERSION) */
+/* GEOLOCATION */
 function getLocation(){
-    try{
-        if(!navigator.geolocation){
-            document.getElementById("geo").innerText =
-                "📍 Geolocation not supported";
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            function(pos){
-                document.getElementById("geo").innerText =
-                    "📍 Lat: " + pos.coords.latitude.toFixed(4) +
-                    " | Lon: " + pos.coords.longitude.toFixed(4);
-            },
-            function(){
-                document.getElementById("geo").innerText =
-                    "📍 Location blocked (still works normally)";
-            },
-            { timeout: 5000 }
-        );
-
-    } catch(e){
-        document.getElementById("geo").innerText =
-            "📍 Location unavailable";
+    if(!navigator.geolocation){
+        document.getElementById("geo").innerText = "Geolocation not supported";
+        return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+        async function(pos){
+
+            let lat = pos.coords.latitude;
+            let lon = pos.coords.longitude;
+
+            document.getElementById("geo").innerText =
+                "📍 Location: " + lat.toFixed(2) + ", " + lon.toFixed(2);
+
+            let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation`;
+
+            let res = await fetch(url);
+            let data = await res.json();
+
+            document.getElementById("weather").innerHTML =
+                "🌡 " + data.current.temperature_2m + "°C  |  " +
+                "💧 " + data.current.relative_humidity_2m + "%  |  " +
+                "🌧 " + data.current.precipitation + "mm";
+
+        },
+        function(){
+            document.getElementById("geo").innerText =
+                "Location permission denied";
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
 }
 
 window.onload = getLocation;
