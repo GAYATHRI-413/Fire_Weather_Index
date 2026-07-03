@@ -17,7 +17,7 @@
             background:white;
             padding:20px;
             border-radius:10px;
-            width:520px;
+            width:550px;
         }
 
         .grid{
@@ -50,6 +50,14 @@
             color:white;
             border:none;
         }
+
+        /* GEO LOCATION STYLE */
+        #geo{
+            text-align:center;
+            font-size:22px;
+            font-weight:bold;
+            margin:10px 0;
+        }
     </style>
 </head>
 
@@ -57,7 +65,7 @@
 
 <div class="card">
 
-<h2>🔥 Fire Weather Index</h2>
+<h2 style="text-align:center;">🔥 Fire Weather Index</h2>
 
 <div class="grid">
 
@@ -96,10 +104,13 @@
 <input id="BUI">
 
 </div>
-<h4 id="geo">📍 Getting location...</h4>
+
+<!-- GEO LOCATION -->
+<h3 id="geo">📍 Detecting location...</h3>
+
 <button class="predict" onclick="predict()">Predict</button>
 
-<h3 id="result"></h3>
+<h3 id="result" style="text-align:center;"></h3>
 
 </div>
 
@@ -151,27 +162,37 @@ async function predict(){
         "🔥 FWI: " + out.fwi;
 }
 
-</script>
+/* GEOLOCATION (SAFE VERSION) */
 function getLocation(){
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
-    } else {
-        document.getElementById("geo").innerText = "Geolocation not supported";
+    try{
+        if(!navigator.geolocation){
+            document.getElementById("geo").innerText =
+                "📍 Geolocation not supported";
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function(pos){
+                document.getElementById("geo").innerText =
+                    "📍 Lat: " + pos.coords.latitude.toFixed(4) +
+                    " | Lon: " + pos.coords.longitude.toFixed(4);
+            },
+            function(){
+                document.getElementById("geo").innerText =
+                    "📍 Location blocked (still works normally)";
+            },
+            { timeout: 5000 }
+        );
+
+    } catch(e){
+        document.getElementById("geo").innerText =
+            "📍 Location unavailable";
     }
 }
 
-function showPosition(position){
-    document.getElementById("geo").innerText =
-        "📍 Lat: " + position.coords.latitude +
-        " | Lon: " + position.coords.longitude;
-}
-
-function showError(){
-    document.getElementById("geo").innerText =
-        "❌ Location permission denied";
-}
-
 window.onload = getLocation;
+
+</script>
 
 </body>
 </html>
