@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask import render_template
 import numpy as np
 import pickle
 import os
@@ -25,9 +26,9 @@ except Exception as e:
 
 
 # ⭐ HOME ROUTE (THIS FIXES YOUR 404)
-@app.route('/')
+@app.route("/")
 def home():
-    return "🔥 Fire Weather Index API is Running"
+    return render_template("index.html")
 
 
 # ⭐ PREDICTION ROUTE

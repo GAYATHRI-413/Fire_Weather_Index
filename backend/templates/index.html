@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>🔥 Fire Weather Index Predictor</h2>
+
+<input id="day" placeholder="day"><br>
+<input id="month" placeholder="month"><br>
+<input id="year" placeholder="year"><br>
+<input id="Temperature" placeholder="Temperature"><br>
+<input id="RH" placeholder="RH"><br>
+<input id="Ws" placeholder="Ws"><br>
+<input id="Rain" placeholder="Rain"><br>
+<input id="FFMC" placeholder="FFMC"><br>
+<input id="DMC" placeholder="DMC"><br>
+<input id="DC" placeholder="DC"><br>
+<input id="ISI" placeholder="ISI"><br>
+<input id="BUI" placeholder="BUI"><br>
+
+<button onclick="predict()">Predict</button>
+
+<h3 id="result"></h3>
+
+<script>
+async function predict(){
+    let data = {
+        day: +day.value,
+        month: +month.value,
+        year: +year.value,
+        Temperature: +Temperature.value,
+        RH: +RH.value,
+        Ws: +Ws.value,
+        Rain: +Rain.value,
+        FFMC: +FFMC.value,
+        DMC: +DMC.value,
+        DC: +DC.value,
+        ISI: +ISI.value,
+        BUI: +BUI.value
+    };
+
+    let res = await fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+    });
+
+    let out = await res.json();
+    document.getElementById("result").innerText = "FWI: " + out.fwi;
+}
+</script>
+
+</body>
+</html>
