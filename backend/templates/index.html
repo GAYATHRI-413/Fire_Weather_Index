@@ -1,52 +1,177 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Fire Weather Index</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f2f2f2;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        .card{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            width:520px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:10px;
+        }
+
+        input{
+            padding:8px;
+            width:90%;
+        }
+
+        .box{
+            display:flex;
+            align-items:center;
+            gap:5px;
+        }
+
+        button{
+            padding:5px 10px;
+            cursor:pointer;
+        }
+
+        .predict{
+            margin-top:10px;
+            width:100%;
+            padding:10px;
+            background:green;
+            color:white;
+            border:none;
+        }
+    </style>
+</head>
+
 <body>
-<h2>🔥 Fire Weather Index Predictor</h2>
 
-<input id="day" placeholder="day"><br>
-<input id="month" placeholder="month"><br>
-<input id="year" placeholder="year"><br>
-<input id="Temperature" placeholder="Temperature"><br>
-<input id="RH" placeholder="RH"><br>
-<input id="Ws" placeholder="Ws"><br>
-<input id="Rain" placeholder="Rain"><br>
-<input id="FFMC" placeholder="FFMC"><br>
-<input id="DMC" placeholder="DMC"><br>
-<input id="DC" placeholder="DC"><br>
-<input id="ISI" placeholder="ISI"><br>
-<input id="BUI" placeholder="BUI"><br>
+<div class="card">
 
-<button onclick="predict()">Predict</button>
+<h2>🔥 Fire Weather Index</h2>
+
+<div class="grid">
+
+<input id="day" placeholder="day" onkeydown="next(event,'month')">
+<input id="month" placeholder="month" onkeydown="next(event,'year')">
+<input id="year" placeholder="year" onkeydown="next(event,'Temperature')">
+
+<div class="box">
+<button onclick="dec('Temperature')">-</button>
+<input id="Temperature" type="number" value="0" onkeydown="next(event,'RH')">
+<button onclick="inc('Temperature')">+</button>
+</div>
+
+<div class="box">
+<button onclick="dec('RH')">-</button>
+<input id="RH" type="number" value="0" onkeydown="next(event,'Ws')">
+<button onclick="inc('RH')">+</button>
+</div>
+
+<div class="box">
+<button onclick="dec('Ws')">-</button>
+<input id="Ws" type="number" value="0" onkeydown="next(event,'Rain')">
+<button onclick="inc('Ws')">+</button>
+</div>
+
+<div class="box">
+<button onclick="dec('Rain')">-</button>
+<input id="Rain" type="number" value="0" onkeydown="next(event,'FFMC')">
+<button onclick="inc('Rain')">+</button>
+</div>
+
+<input id="FFMC" placeholder="FFMC" onkeydown="next(event,'DMC')">
+<input id="DMC" placeholder="DMC" onkeydown="next(event,'DC')">
+<input id="DC" placeholder="DC" onkeydown="next(event,'ISI')">
+<input id="ISI" placeholder="ISI" onkeydown="next(event,'BUI')">
+<input id="BUI">
+
+</div>
+<h4 id="geo">📍 Getting location...</h4>
+<button class="predict" onclick="predict()">Predict</button>
 
 <h3 id="result"></h3>
 
+</div>
+
 <script>
+
+function next(e,nextId){
+    if(e.key === "Enter"){
+        e.preventDefault();
+        if(nextId){
+            document.getElementById(nextId).focus();
+        }
+    }
+}
+
+function inc(id){
+    document.getElementById(id).value =
+        Number(document.getElementById(id).value) + 1;
+}
+
+function dec(id){
+    document.getElementById(id).value =
+        Number(document.getElementById(id).value) - 1;
+}
+
 async function predict(){
     let data = {
-        day: +day.value,
-        month: +month.value,
-        year: +year.value,
-        Temperature: +Temperature.value,
-        RH: +RH.value,
-        Ws: +Ws.value,
-        Rain: +Rain.value,
-        FFMC: +FFMC.value,
-        DMC: +DMC.value,
-        DC: +DC.value,
-        ISI: +ISI.value,
-        BUI: +BUI.value
+        day:+day.value,
+        month:+month.value,
+        year:+year.value,
+        Temperature:+Temperature.value,
+        RH:+RH.value,
+        Ws:+Ws.value,
+        Rain:+Rain.value,
+        FFMC:+FFMC.value,
+        DMC:+DMC.value,
+        DC:+DC.value,
+        ISI:+ISI.value,
+        BUI:+BUI.value
     };
 
-    let res = await fetch("/predict", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(data)
+    let res = await fetch("/predict",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
     });
 
     let out = await res.json();
-    document.getElementById("result").innerText = "FWI: " + out.fwi;
+    document.getElementById("result").innerText =
+        "🔥 FWI: " + out.fwi;
 }
+
 </script>
+function getLocation(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+        document.getElementById("geo").innerText = "Geolocation not supported";
+    }
+}
+
+function showPosition(position){
+    document.getElementById("geo").innerText =
+        "📍 Lat: " + position.coords.latitude +
+        " | Lon: " + position.coords.longitude;
+}
+
+function showError(){
+    document.getElementById("geo").innerText =
+        "❌ Location permission denied";
+}
+
+window.onload = getLocation;
 
 </body>
 </html>
